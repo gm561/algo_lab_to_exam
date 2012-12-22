@@ -1,5 +1,5 @@
 #include <cmath>
-#include <stack>
+#include <queue>
 #include <iostream>
 #include <vector>
 #include <climits>
@@ -22,10 +22,10 @@ typedef vector<vector<vector<vector<int> > > > Graph;
 //typedef  vector<vector<vector<int> > > Vertex;
 
 struct Vertex {
-    int x;
-    int y;
-    int vx;
-    int vy;
+    const int x;
+    const int y;
+    const int vx;
+    const int vy;
 
     Vertex(int x_, int y_, int vx_, int vy_) :
 	x(x_),
@@ -35,21 +35,20 @@ struct Vertex {
 };
 
 void BFS(Graph& graph,
-	 int sx, int sy, int X, int Y) {
+	 int sx, int sy, int X, int Y, int ex, int ey) {
 
-    stack<Vertex> vStack;
+    queue<Vertex> vStack;
     vStack.push(Vertex(sx,sy,0,0));
-//    cout<<sx<<" " <<sy<<endl;
 
-    graph[sx][sy][0][0] = 1;
+    graph[sx][sy][0 + 3][0 + 3] = 1;
 
     while(!vStack.empty()) {
-	Vertex v = vStack.top(); vStack.pop();
-	cout<<"v.x "  << v.x <<" v.y " << v.y << " v.vx " <<v.vx<< " v.vy " <<v.vy<<endl;
+	Vertex v = vStack.front(); vStack.pop();
+//	cout<<"v.x "  << v.x <<" v.y " << v.y << " v.vx " <<v.vx<< " v.vy " <<v.vy<<endl;
 
-	for(int i = 0; i < 3; ++i) {
-	    for(int j = 0; j < 3; ++j) {
-		if (abs(v.vx + i - 1) < VELO_LIM && abs(v.vy + j - 1) < VELO_LIM) {
+	for (int i = 0; i < 3; ++i) {
+	    for (int j = 0; j < 3; ++j) {
+		if (abs((double)v.vx + i - 1) < VELO_LIM && abs((double)v.vy + j - 1) < VELO_LIM) {
 
 		    int vx = v.vx + i - 1;
 		    int vy = v.vy + j - 1;
@@ -60,11 +59,19 @@ void BFS(Graph& graph,
 			int x = v.x + vx;
 			int y = v.y + vy;
 
-			//add obstacles
 			if(!graph[x][y][vx+3][vy+3]) {
+//			    cout<<"x "  << x <<" y " << y << " vx " <<vx<< " vy " <<vy<<endl;
+
 			    vStack.push(Vertex(x, y, vx, vy));
 			    graph[x][y][vx+3][vy+3] = graph[v.x][v.y][v.vx+3][v.vy+3] + 1;
+
+			    if(x == ex && y == ey) {
+				return;
+			    }
 			}
+			// else {
+			//     cout<<"Visited x "  << x <<" y " << y << " vx " <<vx<< " vy " <<vy<< " " << graph[x][y][vx+3][vy+3] <<endl;
+			// }
 		    }
 		}
 	    }
@@ -74,6 +81,9 @@ void BFS(Graph& graph,
 
 int main(int argc, char *argv[])
 {
+    cin.sync_with_stdio(false);
+    cout.sync_with_stdio(false);
+
     int TC; cin >> TC;
     vector<vector<vector<vector<int> > > > graph;
 
@@ -94,25 +104,29 @@ int main(int argc, char *argv[])
 
 	int sx,sy,ex,ey; cin >> sx >> sy >> ex >> ey;
 
-	//add obstacles
-	int osx, osy, oex, oey; cin >> osx >> osy >> oex >> oey;
-	for(int k = osx; k <= oex; ++k) {
-	    for(int l = osy; l <= oey; ++l) {
-		for(int i = 0; i < 7; ++i) {
-		    for(int j = 0; j < 7; ++j) {
-			graph[k][l][i][j] = -1;
+	int count; cin >> count;
+	while(count--) {
+	    //add obstacles
+	    int osx, osy, oex, oey; cin >> osx >> osy >> oex >> oey;
+	    for(int k = osx; k <= oex; ++k) {
+		for(int l = osy; l <= oey; ++l) {
+		    for(int i = 0; i < 7; ++i) {
+			for(int j = 0; j < 7; ++j) {
+			    graph[k][l][i][j] = -1;
+			}
 		    }
 		}
 	    }
 	}
 
-	BFS(graph, sx, sy, X, Y);
+	BFS(graph, sx, sy, X, Y, ex, ey);
 
 	int min =  INT_MAX;
 	for(int i = 0 ; i < 7; ++i) {
 	    for(int j = 0; j < 7; ++j) {
-		cout<<"solution " << graph[ex][ey][i][j]<<endl;
-		if(graph[ex][ey][i][j] != 0 && graph[ex][ey][i][j] < min) {
+		// cout<<"solution "<<ex<< " " <<ey << " " << i << " " <<j
+		//     <<" " << graph[ex][ey][i][j]<<endl;
+		if(graph[ex][ey][i][j] != 0 && graph[ex][ey][i][j] < min &&  graph[ex][ey][i][j] > 0) {
 		    min = graph[ex][ey][i][j];
 		}
 	    }
@@ -122,7 +136,7 @@ int main(int argc, char *argv[])
 	    cout<<"No solution.\n";
 	}
 	else {
-	    cout<<"Optimal solution takes " << min <<" hops.\n";
+	    cout<<"Optimal solution takes " << min - 1 <<" hops.\n";
 	}
     }
 
