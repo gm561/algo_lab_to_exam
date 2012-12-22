@@ -1,5 +1,7 @@
+#include <climits>
 #include <iostream>
 #include <vector>
+#include <set>
 
 #define FOR(x, b, e) for(int x=b; x<=(e); ++x)
 #define FORD(x, b, e) for(int x=b; x>=(e); ––x)
@@ -11,25 +13,32 @@
 
 using namespace std;
 
-bool find_tree(const vector<vector<int> >& trees, int x, int y, int s, int r) {
-    for(int i = x + 1; i < x + r; ++i) {
-	for(int j = y + 1; j < y + s ; ++j) {
-//	    cout<<"x : " << i << " y: " << j <<" tree ? " << trees[i][j] <<endl;
-	    if(trees[i][j]) {
-//		cout<<"Tree found"<<endl;
-		return true;
-	    }
+struct Tree {
+    int x;
+    int y;
+    int i;
+    Tree () {}
+    Tree (int x_, int y_, int i_) : x(x_), y(y_), i(i_) {}
+};
+
+Tree find_tree(const vector<Tree>& trees, int x, int y, int s, int r, int h, const Tree& tree ) {
+    for(vector<Tree>::const_iterator t = trees.begin();
+	t != trees.end();
+	++t) {
+	Tree cTree = *t;
+	if(cTree.x > x && cTree.x < x + r && cTree.y > y && cTree.y < y + s) {
+	    return cTree;
 	}
     }
 
-    return false;
+    return Tree(-1,-1, -1);
 }
 
 
 int main(int argc, char *argv[])
 {
     int TC; cin >> TC;
-    vector<vector<int> > trees;
+    vector<Tree> trees;
     for(int tc = 0 ; tc < TC; ++tc) {
 	//width and height
 	int w,h; cin >> w >> h;
@@ -37,25 +46,31 @@ int main(int argc, char *argv[])
 	int s,r; cin >> s >> r;
 	//number of trees
 	int n; cin >> n;
-	trees.clear(); trees.resize(w+1);
-	REP(i,w+1) {
-	    trees[i].resize(h+1);
-	}
-
+	trees.clear();
+	trees.resize(n);
 	REP(i,n) {
 	    int x,y; cin >> x >> y;
-	    trees[x][y] = 1;
+	    trees[i] = Tree(x,y, i);
 	}
 
 	int sx = -1, sy = -1;
 	//is enough space to land?
-	for(int i = 0; i <= w - r; ++i) {
-	    for(int j = 0; j <= h - s; ++j) {
+	int smallestX = 0;
+	for(int i = 0; i <= w - r; i = smallestX) {
+	    smallestX = INT_MAX;
+	    Tree iTree = trees[0];
+	    for(int j = 0; j <= h - s;) {
 		//is tree in landing area?
-		if(!find_tree(trees, i, j, s, r)) {
+		iTree = find_tree(trees, i, j, s, r, h, iTree);
+		if(iTree.x == -1 && iTree.y == -1) {
 		    sx = i;
 		    sy = j;
 		    goto solution;
+		} else {
+		    if(smallestX > iTree.x) {
+			smallestX = iTree.x;
+		    }
+		    j = iTree.y;
 		}
 	    }
 	}
