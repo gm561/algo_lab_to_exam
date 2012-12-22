@@ -1,3 +1,4 @@
 CXXFLAGS = -O3 -Wall
-all: falseCoin race
+
+all: falseCoin race forcedLanding
 
