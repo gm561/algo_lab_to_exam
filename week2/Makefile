@@ -1,4 +1,4 @@
 CXXFLAGS= -O3 -Wall
 
-all: longestpath burningcoins
+all: longestpath burningcoins beasts
 
