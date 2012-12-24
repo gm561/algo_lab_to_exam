@@ -2,108 +2,152 @@
 #include <iostream>
 #include <vector>
 
+#define FOR(x, b, e) for(int x=b; x<=(e); ++x)
+#define FORD(x, b, e) for(int x=b; x>=(e); ––x)
+#define REP(x, n) for(int x=0; x<(n); ++x)
+#define VAR(v,n) typeof(n) v=(n)
+#define ALL(c) c.begin(),c.end()
+#define SIZE(x) (int)x.size()
+#define FOREACH(i,c) for(VAR(i,(c).begin());i!=(c).end();++i)
+
 using namespace std;
 
-static const int NONE = -1;
+bool is_solution(int row, int column,
+		 const vector<vector<int> > &board) {
 
-//value = 1 set field, value = -1 unset field
-void mark_fields(vector<vector<int> >& board, int value, int i, int j) {
-    const int n = board.size();
-//    cout<<"Mark fields of beast " << i << " " << j << " with value " << value << endl;
+    int n = SIZE(board);
 
-    //mark horizontal fields
-    for(int y = 0; y < n; ++y) {
-	board[i][y] += value;
+    assert(column < n);
+
+    //for all x; y = c;
+    for(int i = 0; i < n; ++i) {
+	if(board[i][column]) {
+	    return false;
+	}
     }
 
-    //mark horizontal fields
-    for(int x = 0; x < n; ++x) {
-	board[x][j] += value;
+    // y = x + c - r
+    for(int i = max(0, -column + row); i < min(n, n - column + row); ++i) {
+	assert(i >= 0 && i < n);
+	assert(i + column - row >= 0 && i + column - row < n);
+
+	if(board[i][i + column - row]) {
+	    return false;
+	}
     }
 
-    //mark first diagonal
-    for(int x = max(i - j, 0) ; x < min(n - j + i, n); ++x) {
-	assert( x < n && x >= 0);
-	assert(x + j - i >= 0 && x + j - i < n);
-	board[x][x + j - i] += value;
+    //y = -x + c + r
+    for(int i = max(0, column + row - n + 1); i < min(n, column + row + 1); ++i) {
+	assert(i >= 0 && i < n);
+	assert(-i + column + row >= 0 && -i + column + row < n);
+	if(board[i][-i + column + row]) {
+	    return false;
+	}
     }
 
-   // for(int k = 0; k < n; ++k ) {
-   //  	for(int j = 0; j < n; ++j ) {
-   //  	    cout << board[j][k] <<" ";
-   //  	}
-   //  	cout<<endl;
-   //  }
+    return true;
+}
 
-    //mark second diagonal
-    for(int x = max(0, i + j - n + 1) ; x < min(i + j, n); ++x) {
-//	cout << -x + j + i << " " << n << endl;
-	assert(-x + j + i >= 0 && -x + j + i < n);
-	assert(x >= 0 && x < n);
+inline void mark_fields(int row, int column,
+		 vector<vector<int> >& board,
+		 int result) {
 
-//	cout<<"mark " << x << " " << - x + j + i <<endl;
-	board[x][ - x + j + i] += value;
+    int n = SIZE(board);
+
+    assert(column < n);
+
+    //for all x; y = c;
+    for(int i = 0; i < n; ++i) {
+	board[i][column] += result;
     }
 
-   // for(int k = 0; k < n; ++k ) {
-   //  	for(int j = 0; j < n; ++j ) {
-   //  	    cout << board[j][k] <<" ";
-   //  	}
-   //  	cout<<endl;
-   //  }
+    // //for all x; y = c;
+    // for(int i = 0; i < n; ++i) {
+    // 	board[row][i] += result;
+    // }
 
+    // y = x + c - r
+    for(int i = max(0, -column + row); i < min(n, n - column + row); ++i) {
+	assert(i >= 0 && i < n);
+	assert(i + column - row >= 0 && i + column - row < n);
+
+	board[i][i + column - row] += result;
+    }
+
+    //y = -x + c + r
+    for(int i = max(0, column + row - n + 1); i < min(n, column + row + 1); ++i) {
+	assert(i >= 0 && i < n);
+	assert(-i + column + row >= 0 && -i + column + row < n);
+
+//	cout<<"mark " << i << " " << -i + column + row <<endl;
+	board[i][-i + column + row] += result;
+    }
+
+    // REP(i, n) {
+    // 	REP(j, n) {
+    // 	    cout<< board[j][i] << " ";
+    // 	}
+    // 	cout<< endl;
+    // }
+}
+
+bool backtrack(int row, vector<int>& solutions,
+	       vector<vector<int> >& board) {
+
+    if(row == SIZE(board)) {
+	return true;
+    }
+
+    //iterate possible solutions
+    bool result = false;
+    for(int i = 0; i < SIZE(board) && !result; ++i) {
+//	cout << "Try position " << row << " " << i << endl;
+	if(!board[row][i]) {
+	    mark_fields(row, i, board, 1);
+	    result = backtrack(row + 1, solutions, board);
+
+	    if(result) {
+		solutions[row] = i;
+	    }
+	    else {
+		mark_fields(row, i, board, -1);
+	    }
+	}
+    }
+
+    return result;
 }
 
 void algo(int n) {
+    vector<int> solution;
+    solution.resize(n);
+
     vector<vector<int> > board;
     board.resize(n);
-    for (int i = 0; i < n; ++i) {
+    REP(i,n) {
 	board[i].resize(n);
     }
 
-    vector<int> beasts;
-    beasts.resize(n);
+    bool result = backtrack(0, solution, board);
 
-    for(int i = 0; i < n; ) {
-	bool found = false;
-	for(int j = max(beasts[i], 0); j < n; ++j) {
-	    if(board[i][j] == 0) {
-		beasts[i] = j;
-		mark_fields(board, 1, i, j);
-		found = true;
-		break;
-	    }
+    if(result) {
+	REP(i, SIZE(board)) {
+	    cout<< solution[i] + 1<< " ";
 	}
-
-	if(!found) {
-	    //backtrack !
-	    beasts[i] = NONE;
-	    if(i == 0) {
-		break;
-	    }
-
-	    mark_fields(board, -1, i - 1, beasts[i - 1]);
-	    ++beasts[i - 1];
-	    i -= 1;
-	}
-	else {
-	    ++i;
-	}
+	cout << "\n";
     }
-
-    if(beasts[0] == NONE) {
-	cout<<"Impossible\n";
-    } else {
-	for(int i = 0; i < n; ++i) {
-	    cout<<beasts[i] << " ";
-	}
-	cout<<"\n";
+    else {
+	cout<< "Impossible\n";
     }
 }
 
+
 int main(int argc, char *argv[]) {
+    cin.sync_with_stdio(false);
+    cout.sync_with_stdio(false);
     int TC; cin >> TC;
-    for (int tc = 0; tc < TC; ++tc) {
+
+    for(int tc = 0 ; tc < TC; ++tc) {
 	int n; cin >> n;
 	algo(n);
     }
