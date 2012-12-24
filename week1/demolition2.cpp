@@ -21,15 +21,24 @@ struct Floor {
     num_t capacity;
     num_t cost;
     num_t weight_under;
+    num_t number;
 
-    Floor(num_t w, num_t cap, num_t co, num_t weight_under_ = 0) :
+    Floor(num_t w, num_t cap, num_t co, num_t number_) :
 	weight(w),
 	capacity(cap),
 	cost(co),
+<<<<<<< HEAD
 	weight_under(weight_under_) { }
+=======
+	weight_under(0),
+	number(number_){}
+>>>>>>> demolition_fixed
 
     bool operator<(const Floor& floor) const {
-	return weight_under + capacity < floor.weight_under + floor.capacity;
+	if(weight_under + capacity != floor.weight_under + floor.capacity )
+	    return weight_under + capacity < floor.weight_under + floor.capacity;
+	else
+	    return number < floor.number;
     }
 };
 
@@ -45,7 +54,7 @@ int main(int argc, char *argv[]) {
 	floors.reserve(n);
 	for(int i = 0; i < n; ++i) {
 	    int w, cap, cost; cin >> w >> cap >> cost;
-	    floors.push_back(Floor(w, cap, cost));
+	    floors.push_back(Floor(w, cap, cost, i));
 	}
 
 	num_t min_cost = floors[0].cost;
@@ -59,6 +68,7 @@ int main(int argc, char *argv[]) {
             floors[i].weight_under = total_weight;
 	    total_weight += floors[i].weight;
 
+<<<<<<< HEAD
 	    for(vector<Floor>::iterator it = not_blew.begin();
 		it != not_blew.end(); ) {
 		Floor floor = *it;
@@ -69,6 +79,17 @@ int main(int argc, char *argv[]) {
 		}
 		else {
 		    ++it;
+=======
+	    while(!stop && !not_blew.empty()) {
+		set<Floor>::const_iterator cit = not_blew.begin();
+		Floor floor = *cit;
+		if(floor.capacity + floor.weight_under - total_weight >= 0) {
+		    stop = true;
+		}
+		else {
+		    current_cost -= floor.cost;
+		    not_blew.erase(cit);
+>>>>>>> demolition_fixed
 		}
 	    }
 
