@@ -98,24 +98,53 @@ bool backtrack(int row, vector<int>& solutions,
 	return true;
     }
 
-    //iterate possible solutions
-    bool result = false;
-    for(int i = 0; i < SIZE(board) && !result; ++i) {
-//	cout << "Try position " << row << " " << i << endl;
-	if(!board[row][i]) {
-	    mark_fields(row, i, board, 1);
-	    result = backtrack(row + 1, solutions, board);
+    int n = SIZE(board);
+    int x = 0;
+    while(x < n) {
+	bool found = false;
+	for(int i = solutions[x]; i < n; ++i) {
+	    if(!board[x][i]) {
+		mark_fields(x, i, board, 1);
+		solutions[x] = i;
+		found = true;
+		break;
+	    }
+	}
+	if(found) {
+	    ++x;
+	}
+	else {
+	    solutions[x] = 0;
+	    --x;
+	    if(x == -1) {
+		return false;
+	    }
 
-	    if(result) {
-		solutions[row] = i;
-	    }
-	    else {
-		mark_fields(row, i, board, -1);
-	    }
+	    mark_fields(x, solutions[x], board, -1);
+	    ++solutions[x];
 	}
     }
 
-    return result;
+    return true;
+
+//     //iterate possible solutions
+//     bool result = false;
+//     for(int i = 0; i < SIZE(board) && !result; ++i) {
+// //	cout << "Try position " << row << " " << i << endl;
+// 	if(!board[row][i]) {
+// 	    mark_fields(row, i, board, 1);
+// 	    result = backtrack(row + 1, solutions, board);
+
+// 	    if(result) {
+// 		solutions[row] = i;
+// 	    }
+// 	    else {
+// 		mark_fields(row, i, board, -1);
+// 	    }
+// 	}
+//     }
+
+//     return result;
 }
 
 void algo(int n) {
