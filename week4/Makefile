@@ -1,5 +1,5 @@
 CXXFLAGS = -O3 -Wall
 
-all: tournament algoocon
+all: tournament algoocon defence
 
 
