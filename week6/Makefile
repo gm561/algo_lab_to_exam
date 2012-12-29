@@ -1,4 +1,4 @@
 CXXFLAGS = -Wall -O3
 
-all: knights
+all: knights shopping
 
