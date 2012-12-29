@@ -1,3 +1,20 @@
+/week3/buidling_the_graph
+/week4/tournament
+/week5/blobs
+/week5/buddies
+/week6/knights
+/week5/tiles
+/week4/defence
+/week4/algoocon
+/week3/shy_programmers
+/week3/deleted_entries
+/week3/ants
+/week2/pinball
+/week2/longestpath
+/week2/beasts2
+/week2/beasts
+/spoj/3321.in0
+/spoj/3321_knapsack
 /week1/demolitionTest.in2
 /week1/demolitionTest.in0
 /week1/demolitionTest.in1
@@ -26,3 +43,6 @@
 *.lai
 *.la
 *.a
+
+# pdf files
+*.pdf
