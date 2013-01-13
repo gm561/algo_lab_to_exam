@@ -70,7 +70,6 @@ void algo(int n, int m) {
 	Solution s = CGAL::solve_quadratic_program(qp, ET());
 	assert (s.solves_quadratic_program(qp));
 
-//	cout << s;
 	if(s.is_optimal() && s.objective_value() <= inv[j].risk) {
 	    cout << "Yes.\n";
 	}
